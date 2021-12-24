@@ -21,8 +21,8 @@
 import packageJson from "./package";
 
 export default () => ({
-  libraryRepoUrl: packageJson.repository.url,
-  demoRepoUrl: packageJson.repository.demo,
+  libraryRepoUrl: "",
+  demoRepoUrl: "",
   copyright: "Copyright 2021 Inrupt, Inc.",
   demoTitle: "Test react SDK project",
   demoDescription: "An example project using the inrupt react SDK",

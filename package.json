@@ -2,44 +2,60 @@
   "name": "dashboard",
   "version": "0.1.0",
   "private": true,
+  "scripts": {
+  "build": "next build",
+  "dev": "next dev",
+  "start": "next start"
+},
   "dependencies": {
-    "@inrupt/solid-ui-react": "^2.6.1",
-    "@testing-library/jest-dom": "^5.16.1",
-    "@testing-library/react": "^12.1.2",
-    "@testing-library/user-event": "^13.5.0",
+    "@inrupt/lit-generated-vocab-common": "^0.3.11",
+    "@inrupt/prism-react-components": "^0.13.3",
+    "@inrupt/solid-client": "^1.7.0",
+    "@inrupt/solid-ui-react": "^2.3.1",
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/icons": "^4.11.2",
+    "@rdfjs/data-model": "^1.3.4",
+    "@rubensworks/solid-client-authn-isomorphic": "^1.0.0",
+    "@solid/lit-prism-patterns": "^0.13.3",
+    "@solid/lit-prism-theme-sdk-default": "^0.13.3",
+    "@solid/lit-term": "^0.4.1",
+    "@treecg/ldes-announcements": "^0.0.5",
+    "@treecg/ldes-orchestrator": "^0.0.3",
+    "@treecg/curation": "^0.0.2",
+    "@treecg/tree-metadata-extraction": "^1.2.1",
+    "eslint-plugin-header": "^3.1.1",
+    "jss-preset-default": "^10.7.1",
+    "loglevel": "^1.8.0",
+    "loglevel-plugin-prefix": "^0.8.4",
+    "n3": "^1.11.2",
+    "next": "^11.1.1",
+    "parse-link-header": "^1.0.1",
+    "rdf-js": "^4.0.2",
+    "rdf-parse": "^1.9.1",
+    "rdf-store-stream": "^1.3.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-scripts": "5.0.0",
-    "web-vitals": "^2.1.2"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "streamify-string": "^1.0.1"
   },
   "devDependencies": {
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-es2015": "^6.24.1",
-    "browser-resolve": "^2.0.0",
-    "esmify": "^2.1.1"
+    "@inrupt/eslint-config-base": "^0.2.0-alpha.1",
+    "@inrupt/eslint-config-react": "^0.2.0-alpha.1",
+    "@typescript-eslint/eslint-plugin": "^3.10.1",
+    "@typescript-eslint/parser": "^3.10.1",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.20.0",
+    "eslint-config-airbnb": "^18.2.0",
+    "eslint-config-next": "^11.0.1",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jest": "^23.20.0",
+    "eslint-plugin-jsx-a11y": "^6.3.1",
+    "eslint-plugin-license-header": "^0.2.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-react": "^7.21.5",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "husky": "^5.1.3",
+    "prettier": "^2.2.1",
+    "typescript": "^4.2.3"
   }
 }
