@@ -27,7 +27,7 @@ import { useState } from "react";
 import { TextField, Card, CardContent, Typography, Button as MaterialButton, CardActions } from "@material-ui/core";
 import { fetchResourceAsStore } from "@treecg/curation/dist/src/util/SolidCommunication";
 import { extractAnnouncementsMetadata } from "@treecg/ldes-announcements";
-
+import { TREE, DCAT } from "@treecg/curation/dist/src/util/Vocabularies";
 
 async function initialise(session, ldesIRI, curatedIRI, syncedIRI) {
   const ldesConfig = await LDESinSolid.getConfig(ldesIRI, session); //Note: Might not always have those permissions of the ldes ->
@@ -48,22 +48,77 @@ async function initialise(session, ldesIRI, curatedIRI, syncedIRI) {
 }
 
 function AnnouncementCard(props) {
-  return (<Card>
-      <CardContent>
-        <Typography> View Announcement</Typography>
-        <br />
-        <Typography> Creator: {props.member.announcement.actor["@id"]} </Typography>
-        <Typography> Announcement issued at certain
-          date: {(new Intl.DateTimeFormat("nl", { weekday: "short" }).format(props.member.timestamp))} {props.member.timestamp.toLocaleString()}</Typography>
-        <Typography> Original LDES: {props.member.value["dct:isVersionOf"]["@id"]} </Typography>
-        <Typography> Original Collection: {props.member.value["@reverse"].view["@id"]} </Typography>
-      </CardContent>
-      <CardActions>
-        <MaterialButton variant="contained" onClick={async () => props.accept(props.member)}>Accept</MaterialButton>
-        <MaterialButton variant="contained" onClick={async () => props.reject(props.member)}>Reject</MaterialButton>
-      </CardActions>
-    </Card>
-  );
+  //TODO: check type and give different view based on type
+  switch (props.member.type) {
+    case TREE.Node:
+      console.log("it is a tree view");
+      return (
+        <Card>
+          <CardContent>
+            <Typography> View Announcement</Typography>
+            <br />
+            <Typography> Creator: {props.member.announcement.actor["@id"]} </Typography>
+            <Typography> Announcement issued at certain
+              date: {(new Intl.DateTimeFormat("nl", { weekday: "short" }).format(props.member.timestamp))} {props.member.timestamp.toLocaleString()}</Typography>
+            <Typography> Original LDES: {props.member.value["dct:isVersionOf"]["@id"]} </Typography>
+            <Typography> Original Collection: {props.member.value["@reverse"].view["@id"]} </Typography>
+          </CardContent>
+          <CardActions>
+            <MaterialButton variant="contained" onClick={async () => props.accept(props.member)}>Accept</MaterialButton>
+            <MaterialButton variant="contained" onClick={async () => props.reject(props.member)}>Reject</MaterialButton>
+          </CardActions>
+        </Card>
+      );
+    case DCAT.DataService:
+      return (
+        <Card>
+          <CardContent>
+            <Typography> DCAT DataService Announcement</Typography>
+            <br />
+            <Typography> Creator: {props.member.announcement.actor["@id"]} </Typography>
+            <Typography> Announcement issued at certain
+              date: {(new Intl.DateTimeFormat("nl", { weekday: "short" }).format(props.member.timestamp))} {props.member.timestamp.toLocaleString()}</Typography>
+            <Typography> Creator of the dataservice: {props.member.value["dct:creator"]["@id"]}</Typography>
+            <Typography> Title of the dataservice: {props.member.value["dct:title"]["@value"]}</Typography>
+            <Typography> Description of the dataservice: {props.member.value["dct:description"]["@value"]}</Typography>
+            <Typography> Endpoint of the dataservice: {props.member.value["dcat:endpointURL"]["@id"]}</Typography>
+            <Typography> Dataservice serves: {props.member.value["dcat:servesDataset"]["@id"]}</Typography>
+
+          </CardContent>
+          <CardActions>
+            <MaterialButton variant="contained" onClick={async () => props.accept(props.member)}>Accept</MaterialButton>
+            <MaterialButton variant="contained" onClick={async () => props.reject(props.member)}>Reject</MaterialButton>
+          </CardActions>
+        </Card>
+      );
+    case DCAT.Dataset:
+      return (
+        <Card>
+          <CardContent>
+            <Typography> DCAT Dataset Announcement</Typography>
+            <br />
+            <Typography> Creator: {props.member.announcement.actor["@id"]} </Typography>
+            <Typography> Announcement issued at certain
+              date: {(new Intl.DateTimeFormat("nl", { weekday: "short" }).format(props.member.timestamp))} {props.member.timestamp.toLocaleString()}</Typography>
+            <Typography> Creator of the dataset: {props.member.value["dct:creator"]["@id"]}</Typography>
+            <Typography> Title of the dataset: {props.member.value["dct:title"]["@value"]}</Typography>
+            <Typography> Description of the dataset: {props.member.value["dct:description"]["@value"]}</Typography>
+          </CardContent>
+          <CardActions>
+            <MaterialButton variant="contained" onClick={async () => props.accept(props.member)}>Accept</MaterialButton>
+            <MaterialButton variant="contained" onClick={async () => props.reject(props.member)}>Reject</MaterialButton>
+          </CardActions>
+        </Card>
+      );
+    default:
+      console.log(`Cannot visualise this type of announcement, I don't know the type`);
+      return (
+        <Card>
+          <Typography>This announcement can not be visualised: {props.member.iri}</Typography>
+        </Card>
+      );
+  }
+
 }
 
 function AnnouncementCardList(props) {
@@ -88,7 +143,8 @@ function AnnouncementCardList(props) {
   }
 
   const cards = props.members.map(member => (
-    <AnnouncementCard member={member} curator={props.curator} id={member.iri} key={member.iri} accept={acceptMember} reject={rejectMember}/>
+    <AnnouncementCard member={member} curator={props.curator} id={member.iri} key={member.iri} accept={acceptMember}
+                      reject={rejectMember} />
   ));
 
   return (
@@ -129,13 +185,7 @@ export default function Home() {
             const test = [];
             for (const { memberIRI, timestamp } of members) {
               let member = await curatorInit.extractMember(memberIRI);
-
-              // TODO: This should happen probably in the curator package
-              const announcementStore = await fetchResourceAsStore(memberIRI, session);
-              const metadata = await extractAnnouncementsMetadata(announcementStore);
-              const announcementMetadata = metadata.announcements.get(memberIRI + "#announce");
-
-              test.push({ ...member, announcement: announcementMetadata, timestamp: new Date(timestamp) });
+              test.push({ ...member, timestamp: new Date(timestamp) });
             }
             setMember(test[0]);
             setMembers(test);
