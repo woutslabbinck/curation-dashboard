@@ -24,10 +24,17 @@ import { Button } from "@inrupt/prism-react-components";
 import { LDESinSolid, Orchestrator } from "@treecg/ldes-orchestrator";
 import { Curator } from "@treecg/curation";
 import { useState } from "react";
-import { TextField, Card, CardContent, Typography, Button as MaterialButton, CardActions } from "@material-ui/core";
-import { fetchResourceAsStore } from "@treecg/curation/dist/src/util/SolidCommunication";
-import { extractAnnouncementsMetadata } from "@treecg/ldes-announcements";
+import {
+  TextField,
+  Card,
+  CardContent,
+  Typography,
+  Button as MaterialButton,
+  CardActions,
+  Grid, Tabs, Tab
+} from "@material-ui/core";
 import { TREE, DCAT } from "@treecg/curation/dist/src/util/Vocabularies";
+import * as PropTypes from "prop-types";
 
 async function initialise(session, ldesIRI, curatedIRI, syncedIRI) {
   const ldesConfig = await LDESinSolid.getConfig(ldesIRI, session); //Note: Might not always have those permissions of the ldes ->
@@ -48,67 +55,79 @@ async function initialise(session, ldesIRI, curatedIRI, syncedIRI) {
 }
 
 function AnnouncementCard(props) {
-  //TODO: check type and give different view based on type
+  // Todo only do this for cardcontent
   switch (props.member.type) {
     case TREE.Node:
-      console.log("it is a tree view");
       return (
-        <Card>
-          <CardContent>
-            <Typography> View Announcement</Typography>
-            <br />
-            <Typography> Creator: {props.member.announcement.actor["@id"]} </Typography>
-            <Typography> Announcement issued at certain
-              date: {(new Intl.DateTimeFormat("nl", { weekday: "short" }).format(props.member.timestamp))} {props.member.timestamp.toLocaleString()}</Typography>
-            <Typography> Original LDES: {props.member.value["dct:isVersionOf"]["@id"]} </Typography>
-            <Typography> Original Collection: {props.member.value["@reverse"].view["@id"]} </Typography>
-          </CardContent>
-          <CardActions>
-            <MaterialButton variant="contained" onClick={async () => props.accept(props.member)}>Accept</MaterialButton>
-            <MaterialButton variant="contained" onClick={async () => props.reject(props.member)}>Reject</MaterialButton>
-          </CardActions>
-        </Card>
+        <Grid item>
+          <Card>
+            <CardContent>
+              <Typography> View Announcement</Typography>
+              <br />
+              <Typography> Creator: {props.member.announcement.actor["@id"]} </Typography>
+              <Typography> Announcement issued at certain
+                date: {(new Intl.DateTimeFormat("nl", { weekday: "short" }).format(props.member.timestamp))} {props.member.timestamp.toLocaleString()}</Typography>
+              <Typography> Original LDES: {props.member.value["dct:isVersionOf"]["@id"]} </Typography>
+              <Typography> Original Collection: {props.member.value["@reverse"].view["@id"]} </Typography>
+            </CardContent>
+            <CardActions>
+              <MaterialButton variant="contained"
+                              onClick={async () => props.accept(props.member)}>Accept</MaterialButton>
+              <MaterialButton variant="contained"
+                              onClick={async () => props.reject(props.member)}>Reject</MaterialButton>
+            </CardActions>
+          </Card>
+        </Grid>
       );
     case DCAT.DataService:
       return (
-        <Card>
-          <CardContent>
-            <Typography> DCAT DataService Announcement</Typography>
-            <br />
-            <Typography> Creator: {props.member.announcement.actor["@id"]} </Typography>
-            <Typography> Announcement issued at certain
-              date: {(new Intl.DateTimeFormat("nl", { weekday: "short" }).format(props.member.timestamp))} {props.member.timestamp.toLocaleString()}</Typography>
-            <Typography> Creator of the dataservice: {props.member.value["dct:creator"]["@id"]}</Typography>
-            <Typography> Title of the dataservice: {props.member.value["dct:title"]["@value"]}</Typography>
-            <Typography> Description of the dataservice: {props.member.value["dct:description"]["@value"]}</Typography>
-            <Typography> Endpoint of the dataservice: {props.member.value["dcat:endpointURL"]["@id"]}</Typography>
-            <Typography> Dataservice serves: {props.member.value["dcat:servesDataset"]["@id"]}</Typography>
+        <Grid item>
+          <Card>
+            <CardContent>
+              <Typography> DCAT DataService Announcement</Typography>
+              <br />
+              <Typography> Creator: {props.member.announcement.actor["@id"]} </Typography>
+              <Typography> Announcement issued at certain
+                date: {(new Intl.DateTimeFormat("nl", { weekday: "short" }).format(props.member.timestamp))} {props.member.timestamp.toLocaleString()}</Typography>
+              <Typography> Creator of the dataservice: {props.member.value["dct:creator"]["@id"]}</Typography>
+              <Typography> Title of the dataservice: {props.member.value["dct:title"]["@value"]}</Typography>
+              <Typography> Description of the
+                dataservice: {props.member.value["dct:description"]["@value"]}</Typography>
+              <Typography> Endpoint of the dataservice: {props.member.value["dcat:endpointURL"]["@id"]}</Typography>
+              <Typography> Dataservice serves: {props.member.value["dcat:servesDataset"]["@id"]}</Typography>
 
-          </CardContent>
-          <CardActions>
-            <MaterialButton variant="contained" onClick={async () => props.accept(props.member)}>Accept</MaterialButton>
-            <MaterialButton variant="contained" onClick={async () => props.reject(props.member)}>Reject</MaterialButton>
-          </CardActions>
-        </Card>
+            </CardContent>
+            <CardActions>
+              <MaterialButton variant="contained"
+                              onClick={async () => props.accept(props.member)}>Accept</MaterialButton>
+              <MaterialButton variant="contained"
+                              onClick={async () => props.reject(props.member)}>Reject</MaterialButton>
+            </CardActions>
+          </Card>
+        </Grid>
       );
     case DCAT.Dataset:
       return (
-        <Card>
-          <CardContent>
-            <Typography> DCAT Dataset Announcement</Typography>
-            <br />
-            <Typography> Creator: {props.member.announcement.actor["@id"]} </Typography>
-            <Typography> Announcement issued at certain
-              date: {(new Intl.DateTimeFormat("nl", { weekday: "short" }).format(props.member.timestamp))} {props.member.timestamp.toLocaleString()}</Typography>
-            <Typography> Creator of the dataset: {props.member.value["dct:creator"]["@id"]}</Typography>
-            <Typography> Title of the dataset: {props.member.value["dct:title"]["@value"]}</Typography>
-            <Typography> Description of the dataset: {props.member.value["dct:description"]["@value"]}</Typography>
-          </CardContent>
-          <CardActions>
-            <MaterialButton variant="contained" onClick={async () => props.accept(props.member)}>Accept</MaterialButton>
-            <MaterialButton variant="contained" onClick={async () => props.reject(props.member)}>Reject</MaterialButton>
-          </CardActions>
-        </Card>
+        <Grid item>
+          <Card>
+            <CardContent>
+              <Typography> DCAT Dataset Announcement</Typography>
+              <br />
+              <Typography> Creator: {props.member.announcement.actor["@id"]} </Typography>
+              <Typography> Announcement issued at certain
+                date: {(new Intl.DateTimeFormat("nl", { weekday: "short" }).format(props.member.timestamp))} {props.member.timestamp.toLocaleString()}</Typography>
+              <Typography> Creator of the dataset: {props.member.value["dct:creator"]["@id"]}</Typography>
+              <Typography> Title of the dataset: {props.member.value["dct:title"]["@value"]}</Typography>
+              <Typography> Description of the dataset: {props.member.value["dct:description"]["@value"]}</Typography>
+            </CardContent>
+            <CardActions>
+              <MaterialButton variant="contained"
+                              onClick={async () => props.accept(props.member)}>Accept</MaterialButton>
+              <MaterialButton variant="contained"
+                              onClick={async () => props.reject(props.member)}>Reject</MaterialButton>
+            </CardActions>
+          </Card>
+        </Grid>
       );
     default:
       console.log(`Cannot visualise this type of announcement, I don't know the type`);
@@ -148,12 +167,30 @@ function AnnouncementCardList(props) {
   ));
 
   return (
-    <div>
+    <Grid
+      spacing={1}
+      container
+      direction="row"
+      alignItems="center"
+      // justify="center"
+    >
       {cards}
-    </div>
+    </Grid>
   );
 }
 
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+  return (
+    <div hidden={value !== index} aria-labelledby={index} role="tabpanel">
+      {children}
+    </div>);
+}
+
+TabPanel.propTypes = {
+  index: PropTypes.string,
+  value: PropTypes.string
+};
 export default function Home() {
   const { session } = useSession();
   const base = "http://localhost:3050/";
@@ -165,65 +202,104 @@ export default function Home() {
   const [curator, setCurator] = useState({});
   const [initialised, setInitialised] = useState(false);
 
-  // temporary state for visualisation
-  const [member, setMember] = useState({});
-  const [members, setMembers] = useState([]);
-  // console.log(props);
+  // list of announcements to be visualised
+  const [announcements, setAnnouncements] = useState([]);
+
+  // state of the tabs
+  const [value, setValue] = useState("configuration");
+
+  const handleChange = async (event, newValue) => {
+    setValue(newValue);
+
+    // set state of curated LDES and/or initialisation parameter
+    switch (newValue) {
+      case "configuration":
+        setInitialised(false);
+        setAnnouncements([]);
+        break;
+      case "announcements":
+        if (!initialised) {
+          const curator =await init();
+          await fetchAnnouncements(curator);
+        } else {
+          await fetchAnnouncements(curator);
+        }
+        break;
+      case "curated":
+        if (!initialised) {
+          await init();
+        }
+        break;
+    }
+  };
+
+  const init = async () => {
+    const [ldesInit, curatorInit] = await initialise(session, ldesIRI, curatedIRI, syncedIRI);
+    setLdes(ldesInit);
+    setCurator(curatorInit);
+    setInitialised(true);
+    return curatorInit
+  };
+
+  async function fetchAnnouncements(curator) {
+    // fetch members
+    const members = (await curator.getRecentMembers(100));
+    const announcements = [];
+    for (const { memberIRI, timestamp } of members) {
+      let member = await curator.extractMember(memberIRI);
+      announcements.push({ ...member, timestamp: new Date(timestamp) });
+    }
+    setAnnouncements(announcements);
+  }
+
   return (
     <div>
-      <h1>Demo</h1>
-      {/* {session.info.isLoggedIn && <Profile />} */}
       {session.info.isLoggedIn && (
         <div>
-          <Button onClick={async () => {
-            const [ldesInit, curatorInit] = await initialise(session, ldesIRI, curatedIRI, syncedIRI);
-            setLdes(ldesInit);
-            setCurator(curatorInit);
-
-            // fetch members
-            const members = (await curatorInit.getRecentMembers(100));
-            const test = [];
-            for (const { memberIRI, timestamp } of members) {
-              let member = await curatorInit.extractMember(memberIRI);
-              test.push({ ...member, timestamp: new Date(timestamp) });
-            }
-            setMember(test[0]);
-            setMembers(test);
-            setInitialised(true);
-          }}>Init</Button><br />
-          {initialised && (
-            <AnnouncementCardList members={members} curator={curator} setMembers={setMembers} />
-          )}
+          <Tabs value={value} onChange={handleChange}
+                aria-label="basic tabs example">
+            <Tab label="Configuration" value="configuration" />
+            <Tab label="Announcements" value="announcements" />
+            <Tab label="Curated LDES" value="curated" />
+          </Tabs>
+          <TabPanel value={value} index="configuration">
+            <br />
+            <TextField
+              fullWidth
+              label={"Solid Pod"}
+              value={solidPod}
+              onChange={(e) => setSolidPod(e.target.value)}>
+            </TextField><br />
+            <TextField
+              fullWidth
+              label={"LDES URL"}
+              value={ldesIRI}
+              onChange={(e) => setLdesIRI(e.target.value)}>
+            </TextField><br />
+            <TextField
+              fullWidth
+              label={"Synchronized URL"}
+              value={syncedIRI}
+              onChange={(e) => setSynchronizedIRI(e.target.value)}>
+            </TextField><br />
+            <TextField
+              fullWidth
+              label={"Curated URL"}
+              value={curatedIRI}
+              onChange={(e) => setCuratedIRI(e.target.value)}>
+            </TextField>
+            <Button onClick={async () => await init()}>Init</Button>
+          </TabPanel>
+          <TabPanel value={value} index="announcements">
+            <h1>Announcements</h1>
+            <AnnouncementCardList members={announcements} curator={curator} setMembers={setAnnouncements} />
+          </TabPanel>
+          <TabPanel value={value} index="curated">
+            <h1>Curated Catalog</h1>
+            <p>View <a href={curatedIRI} target="_blank">{curatedIRI}</a></p>
+          </TabPanel>
         </div>
       )}
-      <div>
-        <br />
-        <TextField
-          fullWidth
-          label={"Solid Pod"}
-          value={solidPod}
-          onChange={(e) => setSolidPod(e.target.value)}>
-        </TextField><br />
-        <TextField
-          fullWidth
-          label={"LDES URL"}
-          value={ldesIRI}
-          onChange={(e) => setLdesIRI(e.target.value)}>
-        </TextField><br />
-        <TextField
-          fullWidth
-          label={"Synchronized URL"}
-          value={syncedIRI}
-          onChange={(e) => setSynchronizedIRI(e.target.value)}>
-        </TextField><br />
-        <TextField
-          fullWidth
-          label={"Curated URL"}
-          value={curatedIRI}
-          onChange={(e) => setCuratedIRI(e.target.value)}>
-        </TextField>
-      </div>
-
     </div>
   );
 }
