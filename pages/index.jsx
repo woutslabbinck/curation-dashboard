@@ -23,57 +23,11 @@ import { useSession } from "@inrupt/solid-ui-react";
 import { Button } from "@inrupt/prism-react-components";
 import { LDESinSolid, Orchestrator } from "@treecg/ldes-orchestrator";
 import { Curator } from "@treecg/curation";
-import Profile from "../components/profile";
 import { useState } from "react";
 import { TextField, Card, CardContent, Typography, Button as MaterialButton, CardActions } from "@material-ui/core";
 import { fetchResourceAsStore } from "@treecg/curation/dist/src/util/SolidCommunication";
 import { extractAnnouncementsMetadata } from "@treecg/ldes-announcements";
 
-async function createLDES(session) {
-  const solidServer = "http://localhost:3050/";
-  const ldesConfig = {
-    base: `${solidServer}new/`,
-    treePath: "http://purl.org/dc/terms/modified",
-    shape: `${solidServer}shape`,
-    relationType: "https://w3id.org/tree#GreaterThanOrEqualToRelation"
-  };
-  const aclConfig = {
-    agent: "https://pod.inrupt.com/woutslabbinck/profile/card#me"
-  };
-  const ldes = new LDESinSolid(ldesConfig, aclConfig, session);
-  await ldes.createLDESinLDP();
-}
-
-async function orchestrate(session) {
-  const base = "http://localhost:3050/new/";
-  const ldesconfig = await LDESinSolid.getConfig(base, session);
-  const ldes = new LDESinSolid(
-    ldesconfig.ldesConfig,
-    ldesconfig.aclConfig,
-    session,
-    2
-  );
-  const orchestrator = new Orchestrator(session);
-  await orchestrator.orchestrateLDES(ldes, 10);
-}
-
-async function curate(session) {
-  const rootIRI = "http://localhost:3050/new/";
-  const curatedIRI = "http://localhost:3050/curated/";
-  const synchronizedIRI = "http://localhost:3050/synced/";
-  const config = {
-    ldesIRI: rootIRI,
-    curatedIRI,
-    synchronizedIRI
-  };
-  const curator = new Curator(config, session);
-  await curator.init();
-  await curator.synchronize();
-  const members = (await curator.getRecentMembers(100)).map(
-    (member) => member.memberIRI
-  );
-  console.log(members[0]);
-}
 
 async function initialise(session, ldesIRI, curatedIRI, syncedIRI) {
   const ldesConfig = await LDESinSolid.getConfig(ldesIRI, session); //Note: Might not always have those permissions of the ldes ->
@@ -97,7 +51,7 @@ function AnnouncementCard(props) {
   return (<Card>
       <CardContent>
         <Typography> View Announcement</Typography>
-        <br/>
+        <br />
         <Typography> Creator: {props.member.announcement.actor["@id"]} </Typography>
         <Typography> Announcement issued at certain
           date: {(new Intl.DateTimeFormat("nl", { weekday: "short" }).format(props.member.timestamp))} {props.member.timestamp.toLocaleString()}</Typography>
@@ -107,14 +61,25 @@ function AnnouncementCard(props) {
       <CardActions>
         <MaterialButton variant="contained" onClick={async () => {
           // NOTE: Should also update the list of members -> remove the announcement
-          await props.curator.accept(props.member.iri, props.member.value, props.member.timestamp.getTime())
+          await props.curator.accept(props.member.iri, props.member.value, props.member.timestamp.getTime());
         }}>Accept</MaterialButton>
         <MaterialButton variant="contained" onClick={async () => {
-          await props.curator.reject(props.member.iri, props.member.timestamp.getTime())
+          await props.curator.reject(props.member.iri, props.member.timestamp.getTime());
         }}>Reject</MaterialButton>
       </CardActions>
     </Card>
   );
+}
+
+function AnnouncementCardList(props) {
+  const cards = props.members.map(member => (
+    <AnnouncementCard member={member} curator={props.curator} id={member.iri} key={member.iri}/>
+  ));
+  return (
+    <div>
+      {cards}
+    </div>
+  )
 }
 
 export default function Home() {
@@ -130,6 +95,7 @@ export default function Home() {
 
   // temporary state for visualisation
   const [member, setMember] = useState({});
+  const [members, setMembers] = useState([]);
   // console.log(props);
   return (
     <div>
@@ -143,21 +109,24 @@ export default function Home() {
             setCurator(curatorInit);
 
             // fetch members
-            const members = (await curatorInit.getRecentMembers(100));
-            let member = await curatorInit.extractMember(members[0].memberIRI);
+            const members = (await curatorInit.getRecentMembers(100))
+            const test = []
+            for (const {memberIRI, timestamp} of members){
+              let member = await curatorInit.extractMember(memberIRI)
 
-            // TODO: This should happen probably in the curator package
-            const announcementStore = await fetchResourceAsStore(members[0].memberIRI, session);
-            const metadata = await extractAnnouncementsMetadata(announcementStore);
-            const announcementMetadata = metadata.announcements.get(members[0].memberIRI + "#announce");
+              // TODO: This should happen probably in the curator package
+              const announcementStore = await fetchResourceAsStore(memberIRI, session);
+              const metadata = await extractAnnouncementsMetadata(announcementStore);
+              const announcementMetadata = metadata.announcements.get(memberIRI + "#announce");
 
-            member = { ...member, announcement: announcementMetadata, timestamp: new Date(members[0].timestamp) };
-            setMember(member);
-
+              test.push({...member, announcement: announcementMetadata, timestamp: new Date(timestamp)})
+            }
+            setMember(test[0]);
+            setMembers(test)
             setInitialised(true);
           }}>Init</Button><br />
           {initialised && (
-              <AnnouncementCard member={member} curator={curator} />
+            <AnnouncementCardList members={members} curator={curator}/>
           )}
         </div>
       )}

@@ -20,10 +20,12 @@
  */
 import packageJson from "./package";
 
-export default () => ({
-  libraryRepoUrl: "",
-  demoRepoUrl: "",
-  copyright: "Copyright 2021 Inrupt, Inc.",
-  demoTitle: "Test react SDK project",
-  demoDescription: "An example project using the inrupt react SDK",
-});
+export default function config(){
+  return {
+    libraryRepoUrl: "",
+    demoRepoUrl: "",
+    copyright: "Copyright 2021 Inrupt, Inc.",
+    demoTitle: "Federating metadata",
+    demoDescription: "Federated metadata catalog Dashboard",
+  }
+}
