@@ -59,27 +59,43 @@ function AnnouncementCard(props) {
         <Typography> Original Collection: {props.member.value["@reverse"].view["@id"]} </Typography>
       </CardContent>
       <CardActions>
-        <MaterialButton variant="contained" onClick={async () => {
-          // NOTE: Should also update the list of members -> remove the announcement
-          await props.curator.accept(props.member.iri, props.member.value, props.member.timestamp.getTime());
-        }}>Accept</MaterialButton>
-        <MaterialButton variant="contained" onClick={async () => {
-          await props.curator.reject(props.member.iri, props.member.timestamp.getTime());
-        }}>Reject</MaterialButton>
+        <MaterialButton variant="contained" onClick={async () => props.accept(props.member)}>Accept</MaterialButton>
+        <MaterialButton variant="contained" onClick={async () => props.reject(props.member)}>Reject</MaterialButton>
       </CardActions>
     </Card>
   );
 }
 
 function AnnouncementCardList(props) {
+  /**
+   * Removes a member from the list that is visualised
+   */
+  function removeMembers(member) {
+    const visualisedMembers = [...props.members];
+    const index = visualisedMembers.indexOf(member);
+    visualisedMembers.splice(index, 1);
+    props.setMembers(visualisedMembers);
+  }
+
+  async function acceptMember(member) {
+    removeMembers(member);
+    await props.curator.accept(member.iri, member.value, member.timestamp.getTime());
+  }
+
+  async function rejectMember(member) {
+    removeMembers(member);
+    await props.curator.reject(member.iri, member.timestamp.getTime());
+  }
+
   const cards = props.members.map(member => (
-    <AnnouncementCard member={member} curator={props.curator} id={member.iri} key={member.iri}/>
+    <AnnouncementCard member={member} curator={props.curator} id={member.iri} key={member.iri} accept={acceptMember} reject={rejectMember}/>
   ));
+
   return (
     <div>
       {cards}
     </div>
-  )
+  );
 }
 
 export default function Home() {
@@ -109,24 +125,24 @@ export default function Home() {
             setCurator(curatorInit);
 
             // fetch members
-            const members = (await curatorInit.getRecentMembers(100))
-            const test = []
-            for (const {memberIRI, timestamp} of members){
-              let member = await curatorInit.extractMember(memberIRI)
+            const members = (await curatorInit.getRecentMembers(100));
+            const test = [];
+            for (const { memberIRI, timestamp } of members) {
+              let member = await curatorInit.extractMember(memberIRI);
 
               // TODO: This should happen probably in the curator package
               const announcementStore = await fetchResourceAsStore(memberIRI, session);
               const metadata = await extractAnnouncementsMetadata(announcementStore);
               const announcementMetadata = metadata.announcements.get(memberIRI + "#announce");
 
-              test.push({...member, announcement: announcementMetadata, timestamp: new Date(timestamp)})
+              test.push({ ...member, announcement: announcementMetadata, timestamp: new Date(timestamp) });
             }
             setMember(test[0]);
-            setMembers(test)
+            setMembers(test);
             setInitialised(true);
           }}>Init</Button><br />
           {initialised && (
-            <AnnouncementCardList members={members} curator={curator}/>
+            <AnnouncementCardList members={members} curator={curator} setMembers={setMembers} />
           )}
         </div>
       )}
