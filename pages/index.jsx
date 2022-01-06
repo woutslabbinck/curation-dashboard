@@ -21,20 +21,16 @@
 
 import { useSession } from "@inrupt/solid-ui-react";
 import { Button } from "@inrupt/prism-react-components";
-import { LDESinSolid, Orchestrator } from "@treecg/ldes-orchestrator";
+import { LDESinSolid } from "@treecg/ldes-orchestrator";
 import { Curator } from "@treecg/curation";
 import { useState } from "react";
-import {
-  TextField,
-  Card,
-  CardContent,
-  Typography,
-  Button as MaterialButton,
-  CardActions,
-  Grid, Tabs, Tab
-} from "@material-ui/core";
-import { TREE, DCAT } from "@treecg/curation/dist/src/util/Vocabularies";
+import { TextField, Tabs, Tab } from "@material-ui/core";
 import * as PropTypes from "prop-types";
+import AnnouncementCardList from "../components/announcements/announcements";
+import CreateViewAnnouncementCard from "../components/development/CreateView";
+import CreateDatasetAnnouncementCard from "../components/development/CreateDataset";
+import CreateDataServiceAnnouncementCard from "../components/development/CreateDataService";
+import CreateInboxCard from "../components/development/inbox";
 
 async function initialise(session, ldesIRI, curatedIRI, syncedIRI) {
   const ldesConfig = await LDESinSolid.getConfig(ldesIRI, session); //Note: Might not always have those permissions of the ldes ->
@@ -52,131 +48,6 @@ async function initialise(session, ldesIRI, curatedIRI, syncedIRI) {
   await curator.init(false);// NOTE: For debugging it is easier to have a public curated set
   await curator.synchronize();
   return [ldes, curator];
-}
-
-function AnnouncementCard(props) {
-  // Todo only do this for cardcontent
-  switch (props.member.type) {
-    case TREE.Node:
-      return (
-        <Grid item>
-          <Card>
-            <CardContent>
-              <Typography> View Announcement</Typography>
-              <br />
-              <Typography> Creator: {props.member.announcement.actor["@id"]} </Typography>
-              <Typography> Announcement issued at certain
-                date: {(new Intl.DateTimeFormat("nl", { weekday: "short" }).format(props.member.timestamp))} {props.member.timestamp.toLocaleString()}</Typography>
-              <Typography> Original LDES: {props.member.value["dct:isVersionOf"]["@id"]} </Typography>
-              <Typography> Original Collection: {props.member.value["@reverse"].view["@id"]} </Typography>
-            </CardContent>
-            <CardActions>
-              <MaterialButton variant="contained"
-                              onClick={async () => props.accept(props.member)}>Accept</MaterialButton>
-              <MaterialButton variant="contained"
-                              onClick={async () => props.reject(props.member)}>Reject</MaterialButton>
-            </CardActions>
-          </Card>
-        </Grid>
-      );
-    case DCAT.DataService:
-      return (
-        <Grid item>
-          <Card>
-            <CardContent>
-              <Typography> DCAT DataService Announcement</Typography>
-              <br />
-              <Typography> Creator: {props.member.announcement.actor["@id"]} </Typography>
-              <Typography> Announcement issued at certain
-                date: {(new Intl.DateTimeFormat("nl", { weekday: "short" }).format(props.member.timestamp))} {props.member.timestamp.toLocaleString()}</Typography>
-              <Typography> Creator of the dataservice: {props.member.value["dct:creator"]["@id"]}</Typography>
-              <Typography> Title of the dataservice: {props.member.value["dct:title"]["@value"]}</Typography>
-              <Typography> Description of the
-                dataservice: {props.member.value["dct:description"]["@value"]}</Typography>
-              <Typography> Endpoint of the dataservice: {props.member.value["dcat:endpointURL"]["@id"]}</Typography>
-              <Typography> Dataservice serves: {props.member.value["dcat:servesDataset"]["@id"]}</Typography>
-
-            </CardContent>
-            <CardActions>
-              <MaterialButton variant="contained"
-                              onClick={async () => props.accept(props.member)}>Accept</MaterialButton>
-              <MaterialButton variant="contained"
-                              onClick={async () => props.reject(props.member)}>Reject</MaterialButton>
-            </CardActions>
-          </Card>
-        </Grid>
-      );
-    case DCAT.Dataset:
-      return (
-        <Grid item>
-          <Card>
-            <CardContent>
-              <Typography> DCAT Dataset Announcement</Typography>
-              <br />
-              <Typography> Creator: {props.member.announcement.actor["@id"]} </Typography>
-              <Typography> Announcement issued at certain
-                date: {(new Intl.DateTimeFormat("nl", { weekday: "short" }).format(props.member.timestamp))} {props.member.timestamp.toLocaleString()}</Typography>
-              <Typography> Creator of the dataset: {props.member.value["dct:creator"]["@id"]}</Typography>
-              <Typography> Title of the dataset: {props.member.value["dct:title"]["@value"]}</Typography>
-              <Typography> Description of the dataset: {props.member.value["dct:description"]["@value"]}</Typography>
-            </CardContent>
-            <CardActions>
-              <MaterialButton variant="contained"
-                              onClick={async () => props.accept(props.member)}>Accept</MaterialButton>
-              <MaterialButton variant="contained"
-                              onClick={async () => props.reject(props.member)}>Reject</MaterialButton>
-            </CardActions>
-          </Card>
-        </Grid>
-      );
-    default:
-      console.log(`Cannot visualise this type of announcement, I don't know the type`);
-      return (
-        <Card>
-          <Typography>This announcement can not be visualised: {props.member.iri}</Typography>
-        </Card>
-      );
-  }
-
-}
-
-function AnnouncementCardList(props) {
-  /**
-   * Removes a member from the list that is visualised
-   */
-  function removeMembers(member) {
-    const visualisedMembers = [...props.members];
-    const index = visualisedMembers.indexOf(member);
-    visualisedMembers.splice(index, 1);
-    props.setMembers(visualisedMembers);
-  }
-
-  async function acceptMember(member) {
-    removeMembers(member);
-    await props.curator.accept(member.iri, member.value, member.timestamp.getTime());
-  }
-
-  async function rejectMember(member) {
-    removeMembers(member);
-    await props.curator.reject(member.iri, member.timestamp.getTime());
-  }
-
-  const cards = props.members.map(member => (
-    <AnnouncementCard member={member} curator={props.curator} id={member.iri} key={member.iri} accept={acceptMember}
-                      reject={rejectMember} />
-  ));
-
-  return (
-    <Grid
-      spacing={1}
-      container
-      direction="row"
-      alignItems="center"
-      // justify="center"
-    >
-      {cards}
-    </Grid>
-  );
 }
 
 function TabPanel(props) {
@@ -208,6 +79,12 @@ export default function Home() {
   // state of the tabs
   const [value, setValue] = useState("configuration");
 
+  /**
+   * Logic for switching the tabs
+   * @param event
+   * @param newValue
+   * @returns {Promise<void>}
+   */
   const handleChange = async (event, newValue) => {
     setValue(newValue);
 
@@ -219,10 +96,12 @@ export default function Home() {
         break;
       case "announcements":
         if (!initialised) {
-          const curator =await init();
+          const curator = await init();
           await fetchAnnouncements(curator);
         } else {
-          await fetchAnnouncements(curator);
+          if (announcements.length === 0) {
+            await fetchAnnouncements(curator);
+          }
         }
         break;
       case "curated":
@@ -230,17 +109,28 @@ export default function Home() {
           await init();
         }
         break;
+      default:
+        break;
     }
   };
 
+  /**
+   * initialise the curator and store it in the state
+   * @returns {Promise<Curator>}
+   */
   const init = async () => {
     const [ldesInit, curatorInit] = await initialise(session, ldesIRI, curatedIRI, syncedIRI);
     setLdes(ldesInit);
     setCurator(curatorInit);
     setInitialised(true);
-    return curatorInit
+    return curatorInit;
   };
 
+  /**
+   * Fetch all the announcements and store it in the state
+   * @param curator
+   * @returns {Promise<void>}
+   */
   async function fetchAnnouncements(curator) {
     // fetch members
     const members = (await curator.getRecentMembers(100));
@@ -261,6 +151,7 @@ export default function Home() {
             <Tab label="Configuration" value="configuration" />
             <Tab label="Announcements" value="announcements" />
             <Tab label="Curated LDES" value="curated" />
+            <Tab label="Development" value="dev" />
           </Tabs>
           <TabPanel value={value} index="configuration">
             <br />
@@ -297,6 +188,13 @@ export default function Home() {
           <TabPanel value={value} index="curated">
             <h1>Curated Catalog</h1>
             <p>View <a href={curatedIRI} target="_blank">{curatedIRI}</a></p>
+          </TabPanel>
+          <TabPanel value={value} index="dev">
+            <h1>Development</h1>
+            <CreateViewAnnouncementCard ldesIRI={ldesIRI}></CreateViewAnnouncementCard>
+            <CreateDatasetAnnouncementCard ldesIRI={ldesIRI}></CreateDatasetAnnouncementCard>
+            <CreateDataServiceAnnouncementCard ldesIRI={ldesIRI}></CreateDataServiceAnnouncementCard>
+            <CreateInboxCard ldesIRI={ldesIRI} session={session}/>
           </TabPanel>
         </div>
       )}

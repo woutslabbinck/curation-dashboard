@@ -39,7 +39,6 @@ import {
 import { SessionProvider } from "@inrupt/solid-ui-react";
 
 import Header from "../header";
-import Nav from "../nav";
 import Footer from "../footer";
 
 import config from "../../config";
@@ -62,7 +61,6 @@ function AppContainer({ children }) {
 
           <div className={bem("app-layout")}>
             <Header />
-            <Nav />
 
             <main className={bem("app-layout__main")}>
               <PageHeader title={CONFIG.demoTitle} actions={[]}>
