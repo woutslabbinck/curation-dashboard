@@ -25,7 +25,8 @@
   - [ ] Creating textFields
 - [ ] create an inbox on a certain location
   - [x] create button
-  - [ ] Creating textFields
+  - [x] Creating textFields
+
 ### Bugs
 
 - [x] Synchronizing acts strange when doing it twice (DC-issued not properly being added) maybe due to caching?
