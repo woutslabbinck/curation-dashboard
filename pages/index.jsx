@@ -45,7 +45,7 @@ import CreateDataServiceAnnouncementCard from "../components/development/CreateD
 import CreateInboxCard from "../components/development/inbox";
 
 async function initialise(session, ldesIRI, curatedIRI, syncedIRI) {
-  const ldesConfig = await LDESinSolid.getConfig(ldesIRI, session); //Note: Might not always have those permissions of the ldes ->
+  const ldesConfig = await LDESinSolid.getConfig(ldesIRI, session); //Note: Might not always have those permissions of the ldes -> TODO Remove from this spot
   const ldes = new LDESinSolid(
     ldesConfig.ldesConfig,
     ldesConfig.aclConfig,
@@ -94,7 +94,7 @@ export default function Home() {
   const [value, setValue] = useState("configuration");
 
   // development mode
-  const [devMode, setDevMode] = useState(true);
+  const [devMode, setDevMode] = useState(false);
 
   /**
    * Logic for switching the tabs
@@ -202,7 +202,7 @@ export default function Home() {
               <Button onClick={async () => await init()}>Init</Button>
               <Divider orientation={"vertical"} variant={"middle"} flexItem />
               <FormControlLabel
-                control={<Switch color="primary" defaultChecked onChange={(e, checked) => setDevMode(checked)} />}
+                control={<Switch color="primary" checked={devMode} onChange={(e, checked) => setDevMode(checked)} />}
                 label={"Dev"} />
             </Grid>
 
