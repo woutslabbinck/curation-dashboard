@@ -26,7 +26,7 @@
 - [ ] create an inbox on a certain location
   - [x] create button
   - [x] Creating textFields
-
+- [ ] Add button in init to view the development mode -> Use State
 ### Bugs
 
 - [x] Synchronizing acts strange when doing it twice (DC-issued not properly being added) maybe due to caching?

@@ -1,81 +1,57 @@
 import { DCAT, TREE } from "@treecg/curation/dist/src/util/Vocabularies";
-import { Button as MaterialButton, Card, CardActions, CardContent, Grid, Typography } from "@material-ui/core";
+import {
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  CardHeader,
+  Grid, Tooltip,
+  Typography
+} from "@material-ui/core";
 
 function AnnouncementCard(props) {
-  // Todo only do this for cardcontent
+  let cardContent;
   switch (props.member.type) {
     case TREE.Node:
-      return (
-        <Grid item>
-          <Card>
-            <CardContent>
-              <Typography> View Announcement</Typography>
-              <br />
-              <Typography> Creator: {props.member.announcement.actor["@id"]} </Typography>
-              <Typography> Announcement issued at certain
-                date: {(new Intl.DateTimeFormat("nl", { weekday: "short" }).format(props.member.timestamp))} {props.member.timestamp.toLocaleString()}</Typography>
-              <Typography> Original LDES: {props.member.value["dct:isVersionOf"]["@id"]} </Typography>
-              <Typography> Original Collection: {props.member.value["@reverse"].view["@id"]} </Typography>
-            </CardContent>
-            <CardActions>
-              <MaterialButton variant="contained"
-                              onClick={async () => props.accept(props.member)}>Accept</MaterialButton>
-              <MaterialButton variant="contained"
-                              onClick={async () => props.reject(props.member)}>Reject</MaterialButton>
-            </CardActions>
-          </Card>
-        </Grid>
-      );
+      cardContent = (<CardContent>
+        <h2> View Announcement</h2>
+        <Typography> Creator: {props.member.announcement.actor["@id"]} </Typography>
+        <Typography> Announcement issued at certain
+          date: {(new Intl.DateTimeFormat("nl", { weekday: "short" }).format(props.member.timestamp))} {props.member.timestamp.toLocaleString()}</Typography>
+        <Typography> Original LDES: {props.member.value["dct:isVersionOf"]["@id"]} </Typography>
+        <Typography> Original Collection: {props.member.value["@reverse"].view["@id"]} </Typography>
+      </CardContent>);
+      break;
     case DCAT.DataService:
-      return (
-        <Grid item>
-          <Card>
-            <CardContent>
-              <Typography> DCAT DataService Announcement</Typography>
-              <br />
-              <Typography> Creator: {props.member.announcement.actor["@id"]} </Typography>
-              <Typography> Announcement issued at certain
-                date: {(new Intl.DateTimeFormat("nl", { weekday: "short" }).format(props.member.timestamp))} {props.member.timestamp.toLocaleString()}</Typography>
-              <Typography> Creator of the dataservice: {props.member.value["dct:creator"]["@id"]}</Typography>
-              <Typography> Title of the dataservice: {props.member.value["dct:title"]["@value"]}</Typography>
-              <Typography> Description of the
-                dataservice: {props.member.value["dct:description"]["@value"]}</Typography>
-              <Typography> Endpoint of the dataservice: {props.member.value["dcat:endpointURL"]["@id"]}</Typography>
-              <Typography> Dataservice serves: {props.member.value["dcat:servesDataset"]["@id"]}</Typography>
+      cardContent = (
+        <CardContent>
+          <h2> DCAT DataService Announcement</h2>
+          <Typography> Creator: {props.member.announcement.actor["@id"]} </Typography>
+          <Typography> Announcement issued at certain
+            date: {(new Intl.DateTimeFormat("nl", { weekday: "short" }).format(props.member.timestamp))} {props.member.timestamp.toLocaleString()}</Typography>
+          <Typography> Creator of the dataservice: {props.member.value["dct:creator"]["@id"]}</Typography>
+          <Typography> Title of the dataservice: {props.member.value["dct:title"]["@value"]}</Typography>
+          <Typography> Description of the
+            dataservice: {props.member.value["dct:description"]["@value"]}</Typography>
+          <Typography> Endpoint of the dataservice: {props.member.value["dcat:endpointURL"]["@id"]}</Typography>
+          <Typography> Dataservice serves: {props.member.value["dcat:servesDataset"]["@id"]}</Typography>
 
-            </CardContent>
-            <CardActions>
-              <MaterialButton variant="contained"
-                              onClick={async () => props.accept(props.member)}>Accept</MaterialButton>
-              <MaterialButton variant="contained"
-                              onClick={async () => props.reject(props.member)}>Reject</MaterialButton>
-            </CardActions>
-          </Card>
-        </Grid>
+        </CardContent>
       );
+      break;
     case DCAT.Dataset:
-      return (
-        <Grid item>
-          <Card>
-            <CardContent>
-              <Typography> DCAT Dataset Announcement</Typography>
-              <br />
-              <Typography> Creator: {props.member.announcement.actor["@id"]} </Typography>
-              <Typography> Announcement issued at certain
-                date: {(new Intl.DateTimeFormat("nl", { weekday: "short" }).format(props.member.timestamp))} {props.member.timestamp.toLocaleString()}</Typography>
-              <Typography> Creator of the dataset: {props.member.value["dct:creator"]["@id"]}</Typography>
-              <Typography> Title of the dataset: {props.member.value["dct:title"]["@value"]}</Typography>
-              <Typography> Description of the dataset: {props.member.value["dct:description"]["@value"]}</Typography>
-            </CardContent>
-            <CardActions>
-              <MaterialButton variant="contained"
-                              onClick={async () => props.accept(props.member)}>Accept</MaterialButton>
-              <MaterialButton variant="contained"
-                              onClick={async () => props.reject(props.member)}>Reject</MaterialButton>
-            </CardActions>
-          </Card>
-        </Grid>
+      cardContent = (
+        <CardContent>
+          <h2> DCAT Dataset Announcement</h2>
+          <Typography> Creator: {props.member.announcement.actor["@id"]} </Typography>
+          <Typography> Announcement issued at certain
+            date: {(new Intl.DateTimeFormat("nl", { weekday: "short" }).format(props.member.timestamp))} {props.member.timestamp.toLocaleString()}</Typography>
+          <Typography> Creator of the dataset: {props.member.value["dct:creator"]["@id"]}</Typography>
+          <Typography> Title of the dataset: {props.member.value["dct:title"]["@value"]}</Typography>
+          <Typography> Description of the dataset: {props.member.value["dct:description"]["@value"]}</Typography>
+        </CardContent>
       );
+      break;
     default:
       console.log(`Cannot visualise this type of announcement, I don't know the type`);
       return (
@@ -84,6 +60,22 @@ function AnnouncementCard(props) {
         </Card>
       );
   }
+  return (
+    <Grid item>
+      <Card>
+        {cardContent}
+        <CardActions>
+          <Button variant="contained"
+                          onClick={async () => props.accept(props.member)}>Accept</Button>
+          <Button variant="contained"
+                          onClick={async () => props.reject(props.member)}>Reject</Button>
+          <Tooltip title={"View the original announcement"}>
+            <Button onClick={() => window.open(props.member.iri, "_blank")}>Original {/* NOTE: this only good for development!!*/}</Button>
+          </Tooltip>
+        </CardActions>
+      </Card>
+    </Grid>
+  );
 }
 
 export default AnnouncementCard;

@@ -24,7 +24,8 @@ import { Button } from "@inrupt/prism-react-components";
 import { LDESinSolid } from "@treecg/ldes-orchestrator";
 import { Curator } from "@treecg/curation";
 import { useState } from "react";
-import { TextField, Tabs, Tab } from "@material-ui/core";
+import { TextField, Tabs, Tab, Fab, Tooltip, Backdrop, CircularProgress } from "@material-ui/core";
+import AutorenewIcon from "@material-ui/icons/Autorenew";
 import * as PropTypes from "prop-types";
 import AnnouncementCardList from "../components/announcements/announcements";
 import CreateViewAnnouncementCard from "../components/development/CreateView";
@@ -69,9 +70,11 @@ export default function Home() {
   const [ldesIRI, setLdesIRI] = useState(base + "new/");
   const [curatedIRI, setCuratedIRI] = useState(base + "curated/"); // note: both curated and synced could always be based on pod but manual control can be given
   const [syncedIRI, setSynchronizedIRI] = useState(base + "synced/");
+
   const [ldes, setLdes] = useState({});
   const [curator, setCurator] = useState({});
   const [initialised, setInitialised] = useState(false);
+  const [announcementsFetched, setAnnouncementsFetched] = useState(false) // used for loading icon when the announcements are being fetched using the synced LDES
 
   // list of announcements to be visualised
   const [announcements, setAnnouncements] = useState([]);
@@ -93,6 +96,7 @@ export default function Home() {
       case "configuration":
         setInitialised(false);
         setAnnouncements([]);
+        setAnnouncementsFetched(false)
         break;
       case "announcements":
         if (!initialised) {
@@ -140,6 +144,7 @@ export default function Home() {
       announcements.push({ ...member, timestamp: new Date(timestamp) });
     }
     setAnnouncements(announcements);
+    setAnnouncementsFetched(true);
   }
 
   return (
@@ -182,19 +187,38 @@ export default function Home() {
             <Button onClick={async () => await init()}>Init</Button>
           </TabPanel>
           <TabPanel value={value} index="announcements">
-            <h1>Announcements</h1>
-            <AnnouncementCardList members={announcements} curator={curator} setMembers={setAnnouncements} />
+            <h1>
+              Announcements {" "}
+              <Tooltip title="Synchronize with the announcement LDES and visualise them" arrow>
+                <Fab
+                  size="medium"
+                  color="primary"
+                     onClick={async () => {
+                  setAnnouncementsFetched(false)
+                  await curator.synchronize();
+                  await fetchAnnouncements(curator);
+                }}>
+                  <AutorenewIcon />
+                </Fab>
+              </Tooltip>
+
+            </h1>
+            <Backdrop open={!announcementsFetched}>
+              <CircularProgress/>
+            </Backdrop>
+            {announcementsFetched && <AnnouncementCardList members={announcements} curator={curator} setMembers={setAnnouncements} />}
           </TabPanel>
           <TabPanel value={value} index="curated">
             <h1>Curated Catalog</h1>
             <p>View <a href={curatedIRI} target="_blank">{curatedIRI}</a></p>
+            {/* TODO: in the long run an autocomplete should appear here which fragments the curated ldes to the titles of the datasets https://tree.linkeddatafragments.org/demo/autocompletion/*/}
           </TabPanel>
           <TabPanel value={value} index="dev">
             <h1>Development</h1>
-            <CreateViewAnnouncementCard ldesIRI={ldesIRI}></CreateViewAnnouncementCard>
-            <CreateDatasetAnnouncementCard ldesIRI={ldesIRI}></CreateDatasetAnnouncementCard>
-            <CreateDataServiceAnnouncementCard ldesIRI={ldesIRI}></CreateDataServiceAnnouncementCard>
-            <CreateInboxCard ldesIRI={ldesIRI} session={session}/>
+            <CreateViewAnnouncementCard ldesIRI={ldesIRI}/>
+            <CreateDatasetAnnouncementCard ldesIRI={ldesIRI}/>
+            <CreateDataServiceAnnouncementCard ldesIRI={ldesIRI}/>
+            <CreateInboxCard ldesIRI={ldesIRI} session={session} />
           </TabPanel>
         </div>
       )}
