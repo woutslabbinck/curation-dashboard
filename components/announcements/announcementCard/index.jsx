@@ -69,9 +69,11 @@ function AnnouncementCard(props) {
                           onClick={async () => props.accept(props.member)}>Accept</Button>
           <Button variant="contained"
                           onClick={async () => props.reject(props.member)}>Reject</Button>
-          <Tooltip title={"View the original announcement"}>
-            <Button onClick={() => window.open(props.member.iri, "_blank")}>Original {/* NOTE: this only good for development!!*/}</Button>
-          </Tooltip>
+          {props.devMode &&
+            <Tooltip title={"View the original announcement"}>
+              <Button onClick={() => window.open(props.member.iri, "_blank")}>Original</Button>
+            </Tooltip>
+          }
         </CardActions>
       </Card>
     </Grid>

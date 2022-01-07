@@ -24,8 +24,19 @@ import { Button } from "@inrupt/prism-react-components";
 import { LDESinSolid } from "@treecg/ldes-orchestrator";
 import { Curator } from "@treecg/curation";
 import { useState } from "react";
-import { TextField, Tabs, Tab, Fab, Tooltip, Backdrop, CircularProgress } from "@material-ui/core";
+import {
+  TextField,
+  Tabs,
+  Tab,
+  Fab,
+  Tooltip,
+  Backdrop,
+  CircularProgress,
+  Switch,
+  FormControlLabel, Divider, Grid
+} from "@material-ui/core";
 import AutorenewIcon from "@material-ui/icons/Autorenew";
+import Settings from "@material-ui/icons/Settings";
 import * as PropTypes from "prop-types";
 import AnnouncementCardList from "../components/announcements/announcements";
 import CreateViewAnnouncementCard from "../components/development/CreateView";
@@ -67,20 +78,23 @@ export default function Home() {
   const { session } = useSession();
   const base = "http://localhost:3050/";
   const [solidPod, setSolidPod] = useState(base);
-  const [ldesIRI, setLdesIRI] = useState(base + "new/");
+  const [ldesIRI, setLdesIRI] = useState(base + "announcements/");
   const [curatedIRI, setCuratedIRI] = useState(base + "curated/"); // note: both curated and synced could always be based on pod but manual control can be given
   const [syncedIRI, setSynchronizedIRI] = useState(base + "synced/");
 
   const [ldes, setLdes] = useState({});
   const [curator, setCurator] = useState({});
   const [initialised, setInitialised] = useState(false);
-  const [announcementsFetched, setAnnouncementsFetched] = useState(false) // used for loading icon when the announcements are being fetched using the synced LDES
+  const [announcementsFetched, setAnnouncementsFetched] = useState(false); // used for loading icon when the announcements are being fetched using the synced LDES
 
   // list of announcements to be visualised
   const [announcements, setAnnouncements] = useState([]);
 
   // state of the tabs
   const [value, setValue] = useState("configuration");
+
+  // development mode
+  const [devMode, setDevMode] = useState(true);
 
   /**
    * Logic for switching the tabs
@@ -96,7 +110,7 @@ export default function Home() {
       case "configuration":
         setInitialised(false);
         setAnnouncements([]);
-        setAnnouncementsFetched(false)
+        setAnnouncementsFetched(false);
         break;
       case "announcements":
         if (!initialised) {
@@ -152,14 +166,14 @@ export default function Home() {
       {session.info.isLoggedIn && (
         <div>
           <Tabs value={value} onChange={handleChange}
-                aria-label="basic tabs example">
-            <Tab label="Configuration" value="configuration" />
+                aria-label="basic tabs example"
+          >
+            <Tab icon={<Settings />} value="configuration" />
             <Tab label="Announcements" value="announcements" />
             <Tab label="Curated LDES" value="curated" />
-            <Tab label="Development" value="dev" />
+            {devMode && (<Tab label="Development" value="dev" />)}
           </Tabs>
           <TabPanel value={value} index="configuration">
-            <br />
             <TextField
               fullWidth
               label={"Solid Pod"}
@@ -184,7 +198,14 @@ export default function Home() {
               value={curatedIRI}
               onChange={(e) => setCuratedIRI(e.target.value)}>
             </TextField>
-            <Button onClick={async () => await init()}>Init</Button>
+            <Grid container>
+              <Button onClick={async () => await init()}>Init</Button>
+              <Divider orientation={"vertical"} variant={"middle"} flexItem />
+              <FormControlLabel
+                control={<Switch color="primary" defaultChecked onChange={(e, checked) => setDevMode(checked)} />}
+                label={"Dev"} />
+            </Grid>
+
           </TabPanel>
           <TabPanel value={value} index="announcements">
             <h1>
@@ -193,31 +214,32 @@ export default function Home() {
                 <Fab
                   size="medium"
                   color="primary"
-                     onClick={async () => {
-                  setAnnouncementsFetched(false)
-                  await curator.synchronize();
-                  await fetchAnnouncements(curator);
-                }}>
+                  onClick={async () => {
+                    setAnnouncementsFetched(false);
+                    await curator.synchronize();
+                    await fetchAnnouncements(curator);
+                  }}>
                   <AutorenewIcon />
                 </Fab>
               </Tooltip>
 
             </h1>
             <Backdrop open={!announcementsFetched}>
-              <CircularProgress/>
+              <CircularProgress />
             </Backdrop>
-            {announcementsFetched && <AnnouncementCardList members={announcements} curator={curator} setMembers={setAnnouncements} />}
+            {announcementsFetched &&
+              <AnnouncementCardList members={announcements} curator={curator} setMembers={setAnnouncements}
+                                    devMode={devMode} />}
           </TabPanel>
           <TabPanel value={value} index="curated">
             <h1>Curated Catalog</h1>
             <p>View <a href={curatedIRI} target="_blank">{curatedIRI}</a></p>
-            {/* TODO: in the long run an autocomplete should appear here which fragments the curated ldes to the titles of the datasets https://tree.linkeddatafragments.org/demo/autocompletion/*/}
           </TabPanel>
           <TabPanel value={value} index="dev">
             <h1>Development</h1>
-            <CreateViewAnnouncementCard ldesIRI={ldesIRI}/>
-            <CreateDatasetAnnouncementCard ldesIRI={ldesIRI}/>
-            <CreateDataServiceAnnouncementCard ldesIRI={ldesIRI}/>
+            <CreateViewAnnouncementCard ldesIRI={ldesIRI} />
+            <CreateDatasetAnnouncementCard ldesIRI={ldesIRI} />
+            <CreateDataServiceAnnouncementCard ldesIRI={ldesIRI} />
             <CreateInboxCard ldesIRI={ldesIRI} session={session} />
           </TabPanel>
         </div>

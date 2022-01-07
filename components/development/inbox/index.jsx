@@ -1,6 +1,6 @@
 import {
   Button,
-  Card, CardActions, CardContent,
+  Card, CardActions, CardContent, CardHeader,
   Dialog,
   DialogActions,
   DialogContent,
@@ -52,8 +52,8 @@ function CreateInboxCard(props) {
   return (
     <div>
       <Card>
+        <CardHeader title={"Create announcement LDES in LDP"}/>
         <CardContent>
-          <h2>Create new LDES in LDP</h2>
           <Typography>Location: {ldesIRI}</Typography>
           <Typography>Owner: {session.info.webId}</Typography>
           <Typography>Shape: <a href={shape}>{shape}</a></Typography>
@@ -74,7 +74,7 @@ function CreateInboxCard(props) {
               };
               const ldes = new LDESinSolid(ldesConfig, aclConfig, session);
               await ldes.createLDESinLDP();
-            }}>Create LDES in LDP</Button>
+            }}>Create announcement LDES</Button>
           </CardActions>
 
 

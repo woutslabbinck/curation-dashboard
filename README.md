@@ -17,16 +17,18 @@
 - [x] Medium: Add configuration after login, when done automatically start init. IDEA: dropdown menu and when click on hidden automaticaly initialise
 - [x] Medium: Make it possible to configure again
 - [ ] Medium: Show curated LDES
+  - [x] Provide link to LDES
+  - [ ] Query LDES with [autocomplete](https://tree.linkeddatafragments.org/demo/autocompletion/)
 
 ### Development features
 
-- [ ] Add buttons for creating view announcement, dcat-dataset announcement and dcat-dataservice announcement (in different component that can be removed)
+- [x] Add buttons for creating view announcement, dcat-dataset announcement and dcat-dataservice announcement (in different component that can be removed)
   - [x] creating buttons
-  - [ ] Creating textFields
-- [ ] create an inbox on a certain location
+  - [x] Creating textFields
+- [x] create an inbox on a certain location
   - [x] create button
   - [x] Creating textFields
-- [ ] Add button in init to view the development mode -> Use State
+- [x] Add button in init to view the development mode -> Use State
 ### Bugs
 
 - [x] Synchronizing acts strange when doing it twice (DC-issued not properly being added) maybe due to caching?

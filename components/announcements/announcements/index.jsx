@@ -30,8 +30,13 @@ function AnnouncementCardList(props) {
   }
 
   const cards = props.members.map(member => (
-    <AnnouncementCard member={member} curator={props.curator} id={member.iri} key={member.iri} accept={acceptMember}
-                      reject={rejectMember} />
+    <AnnouncementCard
+      member={member}
+      curator={props.curator}
+      id={member.iri} key={member.iri}
+      accept={acceptMember}
+      reject={rejectMember}
+      devMode={props.devMode}/>
   ));
 
   return (

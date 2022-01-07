@@ -9,7 +9,7 @@ import {
   Button,
   Card,
   CardActions,
-  CardContent,
+  CardContent, CardHeader,
   Dialog, DialogActions,
   DialogContent,
   DialogTitle, TextField,
@@ -70,7 +70,11 @@ function CreateViewAnnouncementCard(props) {
   const propertyPathRef = useRef(null);
   const pageSizeRef = useRef(null);
 
-
+  const values = [{ "label": "Location of created view", "value": versionOf, "ref": versionOfRef },
+    { "label": "Original LDES", "value": originalLDES, "ref": originalLDESRef },
+    { "label": "ype of bucketizer", "value": bucketizer, "ref": bucketizerRef },
+    { "label": "Property path of bucketizer", "value": propertyPath, "ref": propertyPathRef },
+    { "label": "Number of elements in one page of the bucketizer", "value": pageSize, "ref": pageSizeRef }]
   function handleOpen() {
     setOpen(true);
   }
@@ -91,13 +95,11 @@ function CreateViewAnnouncementCard(props) {
   return (
     <div>
       <Card>
+        <CardHeader title={"Create View Announcement"}/>
         <CardContent>
-          <h2>Create new View Announcement</h2>
-          <Typography>Location of created view: {versionOf}</Typography>
-          <Typography>Original LDES: {originalLDES}</Typography>
-          <Typography>Type of bucketizer: {bucketizer}</Typography>
-          <Typography>Property path of bucketizer: {propertyPath}</Typography>
-          <Typography>Number of elements in one page of the bucketizer: {pageSize}</Typography>
+          {values.map(({label, value}) => (
+            <Typography key={label+"__view"}>{label}: {value}</Typography>
+          ))}
         </CardContent>
         <CardActions>
           <Button onClick={handleOpen}>Edit</Button>
@@ -112,26 +114,14 @@ function CreateViewAnnouncementCard(props) {
           <h1>Edit</h1>
         </DialogTitle>
         <DialogContent>
-          <TextField label="Location of created view"
-                     inputRef={versionOfRef}
-                     defaultValue={versionOf}
-                     fullWidth />
-          <TextField label="Original LDES"
-                     inputRef={originalLDESRef}
-                     defaultValue={originalLDES}
-                     fullWidth />
-          <TextField label="Type of bucketizer"
-                     inputRef={bucketizerRef}
-                     defaultValue={bucketizer}
-                     fullWidth />
-          <TextField label="Property path of bucketizer"
-                     inputRef={propertyPathRef}
-                     defaultValue={propertyPath}
-                     fullWidth />
-          <TextField label="Number of elements in one page of the bucketizer"
-                     inputRef={pageSizeRef}
-                     defaultValue={pageSize}
-                     fullWidth />
+          {values.map(({label, value,ref}) => (
+            <TextField label={label}
+                       inputRef={ref}
+                       defaultValue={value}
+                       key={label}
+                       fullWidth
+            />
+          ))}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleUpdate}>Done</Button>
