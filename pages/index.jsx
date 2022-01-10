@@ -45,12 +45,6 @@ import CreateDataServiceAnnouncementCard from "../components/development/CreateD
 import CreateInboxCard from "../components/development/inbox";
 
 async function initialise(session, ldesIRI, curatedIRI, syncedIRI) {
-  const ldesConfig = await LDESinSolid.getConfig(ldesIRI, session); //Note: Might not always have those permissions of the ldes -> TODO Remove from this spot
-  const ldes = new LDESinSolid(
-    ldesConfig.ldesConfig,
-    ldesConfig.aclConfig,
-    session
-  );
   const config = {
     ldesIRI: ldesIRI,
     curatedIRI: curatedIRI,
@@ -59,7 +53,7 @@ async function initialise(session, ldesIRI, curatedIRI, syncedIRI) {
   const curator = new Curator(config, session);
   await curator.init(false);// NOTE: For debugging it is easier to have a public curated set
   await curator.synchronize();
-  return [ldes, curator];
+  return curator;
 }
 
 function TabPanel(props) {
@@ -77,12 +71,11 @@ TabPanel.propTypes = {
 export default function Home() {
   const { session } = useSession();
   const base = "http://localhost:3050/";
-  const [solidPod, setSolidPod] = useState(base);
+  // const [solidPod, setSolidPod] = useState(base);
   const [ldesIRI, setLdesIRI] = useState(base + "announcements/");
   const [curatedIRI, setCuratedIRI] = useState(base + "curated/"); // note: both curated and synced could always be based on pod but manual control can be given
   const [syncedIRI, setSynchronizedIRI] = useState(base + "synced/");
 
-  const [ldes, setLdes] = useState({});
   const [curator, setCurator] = useState({});
   const [initialised, setInitialised] = useState(false);
   const [announcementsFetched, setAnnouncementsFetched] = useState(false); // used for loading icon when the announcements are being fetched using the synced LDES
@@ -137,8 +130,7 @@ export default function Home() {
    * @returns {Promise<Curator>}
    */
   const init = async () => {
-    const [ldesInit, curatorInit] = await initialise(session, ldesIRI, curatedIRI, syncedIRI);
-    setLdes(ldesInit);
+    const curatorInit = await initialise(session, ldesIRI, curatedIRI, syncedIRI);
     setCurator(curatorInit);
     setInitialised(true);
     return curatorInit;
@@ -174,27 +166,27 @@ export default function Home() {
             {devMode && (<Tab label="Development" value="dev" />)}
           </Tabs>
           <TabPanel value={value} index="configuration">
+            {/*<TextField*/}
+            {/*  fullWidth*/}
+            {/*  label={"Solid Pod"}*/}
+            {/*  value={solidPod}*/}
+            {/*  onChange={(e) => setSolidPod(e.target.value)}>*/}
+            {/*</TextField>*/}
             <TextField
               fullWidth
-              label={"Solid Pod"}
-              value={solidPod}
-              onChange={(e) => setSolidPod(e.target.value)}>
-            </TextField><br />
-            <TextField
-              fullWidth
-              label={"LDES URL"}
+              label={"Announcement LDES URL"}
               value={ldesIRI}
               onChange={(e) => setLdesIRI(e.target.value)}>
-            </TextField><br />
+            </TextField>
             <TextField
               fullWidth
               label={"Synchronized URL"}
               value={syncedIRI}
               onChange={(e) => setSynchronizedIRI(e.target.value)}>
-            </TextField><br />
+            </TextField>
             <TextField
               fullWidth
-              label={"Curated URL"}
+              label={"Curated LDES URL"}
               value={curatedIRI}
               onChange={(e) => setCuratedIRI(e.target.value)}>
             </TextField>

@@ -25,7 +25,7 @@ function CardActionsArea() {
 function CreateInboxCard(props) {
   const { session, ldesIRI, ...other } = props;
   const [open, setOpen] = useState(false);
-  const [shape, setShape] = useState("http://localhost:3050/shape");
+  const [shape, setShape] = useState("https://tree.linkeddatafragments.org/announcements/shape");
   const [treePath, setTreePath] = useState("http://purl.org/dc/terms/modified");
   const [relationType, setRelationType] = useState("https://w3id.org/tree#GreaterThanOrEqualToRelation");
 

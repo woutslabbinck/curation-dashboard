@@ -33,7 +33,7 @@ const announcement = {
 function createDatasetAnnouncement({ creator, description, identifier, license, title, shape, view }) {
   const dataset = {
     "@id": "#dataset",
-    "@type": [DCAT.Dataset],
+    "@type": [DCAT.Dataset, LDES.EventStream],
     "@context": { "tree": TREE.namespace, "dct": DCT.namespace },
     "dct:creator": { "@id": creator },
     "dct:description": description,
