@@ -100,26 +100,25 @@ The npm package [LDES orchestrator](https://www.npmjs.com/package/@treecg/ldes-o
 #### Server setup
 
 ```bash
-git clone git@github.com:woutslabbinck/community-server.git
-cd community-server
+# initialise the server with
+npx @solid/community-server -c .config/file-init.json -f ./data -l info -p 3050
 
-npm install
-npm i jsonld-streaming-parser
-# The latest version of jsonld-streaming-parser is required for adding a context to the reverse property in JSON-LD (used in creating View Announcements)
+# This will result in the follow error: [AppRunner] error: Could not start server: NotFoundHttpError
+# But that is good as you can now run the server which will be ready now
 
-# go to the shape-support branch
-npm checkout feat/shape-support
+# Start the solid server with this config file
+npx @solid/community-server  -c .config/file.json -f ./data -l info -p 3050
 
-# initialize the server
-node ./bin/server.js -c .config/file.json -f ./data -l info
+# copy the shape file to the data folder (used to validate the announcements)
+wget https://tree.linkeddatafragments.org/announcements/shape -O config/shape.ttl
+cp config/shape.ttl data/shape$.ttl
 ```
-
-
-
-Now you can go to `https://localhost:3000` and finish the initialisation process. After that process in the `data` directory the `.acl` file has to be edited to add your WebID as an acl:agent with acl:control permissions see [acl config example](creating-an-announcement-ldes-in-ldp). 
 
 From now on this server can be used to created your own announcement LDES and curated LDES using the dashboard. As long as  you configure it right.
 
+#### Initialising the Announcement LDES in LDP
+
+At the home screen, activate the dev button. Then go to the fourth tab (Development). There, you can create an announcement LDES by simply clickin ghte button (last card).
 ### Shapes
 
 SHACL shape used for announcements: [https://tree.linkeddatafragments.org/announcements/shape](https://tree.linkeddatafragments.org/announcements/shape). Image created with [SHACL Play!](https://shacl-play.sparna.fr/play/), can be recreated using following [url](https://shacl-play.sparna.fr/play/doc?url=https%3A%2F%2Ftree.linkeddatafragments.org%2Fannouncements%2Fshape).

@@ -166,12 +166,6 @@ export default function Home() {
             {devMode && (<Tab label="Development" value="dev" />)}
           </Tabs>
           <TabPanel value={value} index="configuration">
-            {/*<TextField*/}
-            {/*  fullWidth*/}
-            {/*  label={"Solid Pod"}*/}
-            {/*  value={solidPod}*/}
-            {/*  onChange={(e) => setSolidPod(e.target.value)}>*/}
-            {/*</TextField>*/}
             <TextField
               fullWidth
               label={"Announcement LDES URL"}
